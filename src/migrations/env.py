@@ -7,7 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.db.db import Base
-from src.models.tasks import Tasks
+from src.models.tasks import Tasks, TaskHistory
 from src.models.users import Users
 
 # this is the Alembic Config object, which provides

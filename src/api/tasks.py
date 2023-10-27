@@ -1,9 +1,9 @@
-from typing import Annotated
+from fastapi import APIRouter
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from src.api.dependencies import tasks_service
-from src.schemas.tasks import TaskSchemaAdd
+from src.api.dependencies import UOWDep
+from src.schemas.tasks import TaskSchemaAdd, TaskSchemaEdit
 from src.services.tasks import TasksService
 
 router = APIRouter(
@@ -15,15 +15,33 @@ router = APIRouter(
 @router.post("/")
 async def add_task(
         task: TaskSchemaAdd,
-        tasks_service: Annotated[TasksService, Depends(tasks_service)],
+        uow: UOWDep,
 ):
-    task_id = await tasks_service.add_task(task)
+    task_id = await TasksService().add_task(uow, task)
     return {"task_id": task_id}
+
+
+@router.patch("/{id_}")
+async def edit_task(
+        id_: int,
+        task: TaskSchemaEdit,
+        uow: UOWDep,
+):
+    await TasksService().edit_task(uow, id_, task)
+    return {"ok": True}
 
 
 @router.get("/")
 async def get_tasks(
-        tasks_service: Annotated[TasksService, Depends(tasks_service)],
+        uow: UOWDep,
 ):
-    tasks = await tasks_service.get_tasks()
+    tasks = await TasksService().get_tasks(uow)
+    return tasks
+
+
+@router.get("/history")
+async def get_task_history(
+        uow: UOWDep,
+):
+    tasks = await TasksService().get_task_history(uow)
     return tasks
